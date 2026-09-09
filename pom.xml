@@ -7,12 +7,14 @@
     <groupId>org.caixaverso</groupId>
     <artifactId>aula-JPA-Hibernate</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>Aula JPA e Hibernate</name>
 
     <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <exec.mainClass>org.caixaverso.App</exec.mainClass>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>jakarta.persistence</groupId>
@@ -28,19 +30,15 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.3.232</version>
-            <!-- compile: DriverManager e o console web (AbrirConsoleH2) usam classes do H2. -->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.18.3</version>
         </dependency>
     </dependencies>
+
     <build>
-        <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>META-INF/**</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

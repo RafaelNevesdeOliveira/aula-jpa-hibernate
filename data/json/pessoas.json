@@ -1,0 +1,8 @@
+{
+  "pessoas": [
+    { "nome": "Ana", "documento": "12345678901" },
+    { "nome": "Caio", "documento": "98765432100" },
+    { "nome": "Duda", "documento": "45678912300" },
+    { "nome": "Bruno", "documento": "32165498700" }
+  ]
+}

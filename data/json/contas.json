@@ -1,0 +1,8 @@
+{
+  "contas": [
+    { "titular": "Ana", "saldo": "100.00" },
+    { "titular": "Caio", "saldo": "15.00" },
+    { "titular": "Duda", "saldo": "40.00" },
+    { "titular": "Bruno", "saldo": "250.50" }
+  ]
+}
