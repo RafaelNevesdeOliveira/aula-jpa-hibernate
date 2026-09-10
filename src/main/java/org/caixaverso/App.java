@@ -1,12 +1,14 @@
 package org.caixaverso;
 
-import jakarta.persistence.EntityManagerFactory;
 import org.caixaverso.controller.ExercicioController;
-import org.caixaverso.infra.h2.BancoH2;
+import org.caixaverso.infra.banco.ConfiguracaoBanco;
+import org.caixaverso.infra.banco.ContextoAula;
 import org.caixaverso.infra.h2.ConsoleH2;
 import org.caixaverso.infra.jpa.JpaFactory;
 import org.caixaverso.infra.jpa.LogsAula;
 import org.caixaverso.infra.json.CargaJson;
+import org.caixaverso.infra.mongo.BancoMongo;
+import org.caixaverso.infra.mongo.CargaMongo;
 import org.caixaverso.repository.ContaRepository;
 import org.caixaverso.repository.PessoaRepository;
 import org.caixaverso.view.MenuView;
@@ -16,21 +18,31 @@ import java.util.Scanner;
 
 public final class App implements AutoCloseable {
 
-    private final EntityManagerFactory fabrica;
+    private final ConfiguracaoBanco config;
+    private final ContextoAula contexto;
     private final Server consoleH2;
     private final MenuView menu;
     private final ExercicioController exercicios;
-    private final CargaJson carga;
+    private final String mensagemCarga;
 
     public App() {
         LogsAula.silenciarHibernate();
-        this.consoleH2 = ConsoleH2.iniciar();
-        this.fabrica = JpaFactory.abrirLocal();
+        this.config = ConfiguracaoBanco.carregar();
+        this.consoleH2 = config.ehH2() ? ConsoleH2.iniciar() : null;
+        if (config.ehMongo()) {
+            var mongo = new BancoMongo(config);
+            this.contexto = new ContextoAula(config, null, mongo);
+            this.mensagemCarga = new CargaMongo(mongo.database()).carregar();
+        } else {
+            var fabrica = JpaFactory.abrir(config);
+            this.contexto = new ContextoAula(config, fabrica, null);
+            this.mensagemCarga = new CargaJson(
+                    new ContaRepository(fabrica),
+                    new PessoaRepository(fabrica)
+            ).carregar();
+        }
         this.menu = new MenuView();
-        var contaRepository = new ContaRepository(fabrica);
-        var pessoaRepository = new PessoaRepository(fabrica);
-        this.exercicios = new ExercicioController(fabrica, menu);
-        this.carga = new CargaJson(contaRepository, pessoaRepository);
+        this.exercicios = new ExercicioController(contexto, menu);
     }
 
     public static void main(String[] args) {
@@ -40,11 +52,7 @@ public final class App implements AutoCloseable {
     }
 
     public void iniciar() {
-        String urlConsole = consoleH2 != null
-                ? consoleH2.getURL()
-                : "http://localhost:" + BancoH2.PORTA_CONSOLE + " (ja estava aberto)";
-        menu.cabecalho(carga.carregar(), urlConsole);
-
+        menu.cabecalho(mensagemCarga, config, consoleH2);
         try (Scanner entrada = new Scanner(System.in)) {
             boolean continuar = true;
             while (continuar) {
@@ -55,7 +63,7 @@ public final class App implements AutoCloseable {
 
     @Override
     public void close() {
-        fabrica.close();
+        contexto.close();
         ConsoleH2.parar(consoleH2);
     }
 }

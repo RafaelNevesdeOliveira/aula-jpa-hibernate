@@ -1,6 +1,6 @@
 package org.caixaverso.exercicios;
 
-import jakarta.persistence.EntityManagerFactory;
+import org.caixaverso.infra.banco.ContextoAula;
 import org.caixaverso.model.Conta;
 
 import java.math.BigDecimal;
@@ -18,7 +18,7 @@ public class Exercicio01ObjetoMemoria implements Exercicio {
     }
 
     @Override
-    public void executar(EntityManagerFactory fabrica) {
+    public void executar(ContextoAula contexto) {
         Conta conta = new Conta("Ana", new BigDecimal("100.00"));
         System.out.println("Titular: " + conta.getTitular());
         System.out.println("Id antes de persistir: " + conta.getId());

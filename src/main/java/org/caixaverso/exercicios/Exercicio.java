@@ -1,6 +1,7 @@
 package org.caixaverso.exercicios;
 
-import jakarta.persistence.EntityManagerFactory;
+import org.caixaverso.infra.banco.ContextoAula;
+import org.caixaverso.infra.banco.TipoBanco;
 
 public interface Exercicio {
 
@@ -8,5 +9,9 @@ public interface Exercicio {
 
     String titulo();
 
-    void executar(EntityManagerFactory fabrica);
+    default boolean aplicaA(TipoBanco tipo) {
+        return true;
+    }
+
+    void executar(ContextoAula contexto);
 }

@@ -1,30 +1,31 @@
 package org.caixaverso.controller;
 
-import jakarta.persistence.EntityManagerFactory;
 import org.caixaverso.exercicios.CatalogoExercicios;
 import org.caixaverso.exercicios.Exercicio;
+import org.caixaverso.infra.banco.ContextoAula;
 import org.caixaverso.view.MenuView;
 
 import java.util.Scanner;
 
 public class ExercicioController {
 
-    private final EntityManagerFactory fabrica;
+    private final ContextoAula contexto;
     private final MenuView menu;
 
-    public ExercicioController(EntityManagerFactory fabrica, MenuView menu) {
-        this.fabrica = fabrica;
+    public ExercicioController(ContextoAula contexto, MenuView menu) {
+        this.contexto = contexto;
         this.menu = menu;
     }
 
     public boolean executar(Scanner entrada) {
-        menu.exibirExercicios(CatalogoExercicios.todos());
+        var tipo = contexto.config().tipo();
+        menu.exibirExercicios(CatalogoExercicios.para(tipo));
         String codigo = menu.lerOpcao(entrada);
         if (codigo.equals("0") || codigo.equals("00") || codigo.isBlank()) {
             menu.aviso("Encerrando.");
             return false;
         }
-        CatalogoExercicios.porCodigo(codigo).ifPresentOrElse(
+        CatalogoExercicios.porCodigo(codigo, tipo).ifPresentOrElse(
                 exercicio -> rodar(exercicio, entrada),
                 () -> menu.erro("exercicio nao encontrado: " + codigo)
         );
@@ -35,7 +36,7 @@ public class ExercicioController {
         System.out.println();
         System.out.println("--- Exercicio " + exercicio.codigo() + " — " + exercicio.titulo() + " ---");
         try {
-            exercicio.executar(fabrica);
+            exercicio.executar(contexto);
         } catch (RuntimeException erro) {
             menu.erro(mensagemAmigavel(erro));
         }
