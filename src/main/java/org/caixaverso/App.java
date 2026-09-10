@@ -2,7 +2,7 @@ package org.caixaverso;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.caixaverso.controller.ExercicioController;
-import org.caixaverso.infra.h2.BancoH2;
+import org.caixaverso.infra.banco.ConfiguracaoBanco;
 import org.caixaverso.infra.h2.ConsoleH2;
 import org.caixaverso.infra.jpa.JpaFactory;
 import org.caixaverso.infra.jpa.LogsAula;
@@ -16,6 +16,7 @@ import java.util.Scanner;
 
 public final class App implements AutoCloseable {
 
+    private final ConfiguracaoBanco config;
     private final EntityManagerFactory fabrica;
     private final Server consoleH2;
     private final MenuView menu;
@@ -24,8 +25,9 @@ public final class App implements AutoCloseable {
 
     public App() {
         LogsAula.silenciarHibernate();
-        this.consoleH2 = ConsoleH2.iniciar();
-        this.fabrica = JpaFactory.abrirLocal();
+        this.config = ConfiguracaoBanco.carregar();
+        this.consoleH2 = config.ehH2() ? ConsoleH2.iniciar() : null;
+        this.fabrica = JpaFactory.abrir(config);
         this.menu = new MenuView();
         var contaRepository = new ContaRepository(fabrica);
         var pessoaRepository = new PessoaRepository(fabrica);
@@ -40,10 +42,7 @@ public final class App implements AutoCloseable {
     }
 
     public void iniciar() {
-        String urlConsole = consoleH2 != null
-                ? consoleH2.getURL()
-                : "http://localhost:" + BancoH2.PORTA_CONSOLE + " (ja estava aberto)";
-        menu.cabecalho(carga.carregar(), urlConsole);
+        menu.cabecalho(carga.carregar(), config, consoleH2);
 
         try (Scanner entrada = new Scanner(System.in)) {
             boolean continuar = true;
