@@ -11,7 +11,9 @@ public final class CatalogoExercicios {
     public static List<Exercicio> todos() {
         return List.of(
                 new Exercicio01ObjetoMemoria(),
-                new Exercicio02ListarContasJpa()
+                new Exercicio02ListarContasJpa(),
+                new Exercicio03FabricaContexto(),
+                new Exercicio04ListarTitular()
         );
     }
 

@@ -20,16 +20,18 @@ public class Exercicio02ListarContasJpa implements Exercicio {
 
     @Override
     public void executar(EntityManagerFactory fabrica) {
-        EntityManager em = fabrica.createEntityManager();
-        try {
-            List<Conta> contas = em.createQuery("select c from Conta c order by c.id", Conta.class)
+        EntityManager entityManager = fabrica.createEntityManager();
+
+        try{
+            List<Conta> contas= entityManager
+                    .createQuery("select c from Conta c order by c.id", Conta.class)
                     .getResultList();
             System.out.println("Total no H2: " + contas.size());
-            for (Conta conta : contas) {
+            for(Conta conta : contas){
                 System.out.println(conta.getId() + " | " + conta.getTitular() + " | " + conta.getSaldo());
             }
-        } finally {
-            em.close();
+        }finally {
+            entityManager.close();
         }
     }
 }

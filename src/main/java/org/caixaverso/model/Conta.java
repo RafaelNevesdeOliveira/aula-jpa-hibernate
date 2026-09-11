@@ -2,10 +2,12 @@ package org.caixaverso.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.caixaverso.infra.jpa.Transacao;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -75,6 +77,12 @@ public class Conta {
         } catch (ArithmeticException erro) {
             throw new IllegalArgumentException("Use no maximo duas casas decimais", erro);
         }
+    }
+
+    public static Long gravar(EntityManagerFactory fabrica, String titular, String saldo) {
+        Conta conta = new Conta(titular, new BigDecimal(saldo));
+        Transacao.executar(fabrica, em -> em.persist(conta));
+        return conta.getId();
     }
 
     public Long getId() {
